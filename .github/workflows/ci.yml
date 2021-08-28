@@ -21,7 +21,7 @@ jobs:
           pip install flake8 pytest black
       - name: Check formatting
         run: |
-          black --check .
+          black -l 100 --check .
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
