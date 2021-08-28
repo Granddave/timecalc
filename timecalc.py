@@ -33,15 +33,12 @@ def _calculate_time_range(t1: str, t2: str):
 
 
 def _calculate_time_interval(interval: str):
-    unit = None
-    if "m" in interval:
-        unit = "minutes"
-    elif "h" in interval:
-        unit = "hours"
-    else:
-        raise ValueError(f"Failed to parse time interval: {interval}")
-
-    return timedelta(**{unit: int(interval[:-1])})
+    """Convert time interval string to timedelta object"""
+    time_range_units = {
+        "m": "minutes",
+        "h": "hours",
+    }
+    return timedelta(**{time_range_units[interval[-1]]: int(interval[:-1])})
 
 
 def calculate_total_time(args_list):
@@ -58,7 +55,6 @@ def calculate_total_time(args_list):
             continue
 
         raise ParseError(item)
-
     return total_time
 
 
