@@ -3,24 +3,26 @@
 import argparse
 from datetime import datetime, timedelta
 import re
-import sys
 
 
 _time_range_re = re.compile(r"^(\d{1,2}:\d{2})-(\d{1,2}:\d{2})$")
 _time_interval_re = re.compile(r"^(-?\d{1,2}[mh])$")
+
 
 class ParseError(RuntimeError):
     pass
 
 
 def _match_time_range(timerange_str: str):
-    if match := _time_range_re.findall(timerange_str):
+    match = _time_range_re.findall(timerange_str)
+    if match:
         return match[0]
     return None
 
 
 def _match_time_interval(timeinterval_str: str):
-    if match := _time_interval_re.findall(timeinterval_str):
+    match = _time_interval_re.findall(timeinterval_str)
+    if match:
         return match[0]
     return None
 
@@ -45,12 +47,18 @@ def _calculate_time_interval(interval: str):
 def calculate_total_time(args_list):
     total_time = timedelta()
     for item in args_list:
-        if time_range := _match_time_range(item):
+        time_range = _match_time_range(item)
+        if time_range:
             total_time += _calculate_time_range(time_range[0], time_range[1])
-        elif time_interval := _match_time_interval(item):
+            continue
+
+        time_interval = _match_time_interval(item)
+        if time_interval:
             total_time += _calculate_time_interval(time_interval)
-        else:
-            raise ParseError(item)
+            continue
+
+        raise ParseError(item)
+
     return total_time
 
 
