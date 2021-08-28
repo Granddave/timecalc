@@ -67,7 +67,7 @@ def _main():
     parser.add_argument(
         "time_parts",
         nargs="+",
-        help="Time ranges or intervals, e.g. 09:00-12:30, 1h and 30m",
+        help="Time ranges or intervals, e.g. 09:00-12:30, 1h or -30m",
     )
 
     # Need to parse the parts like this to be able to support subtracting intervals, e.g. -15m
