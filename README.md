@@ -29,3 +29,10 @@ Total time: 04:15
 ## Requirements
 
 - Python >=3.8
+- Docker for testing
+
+## Run tests
+
+```bash
+$ ./run-tests.sh
+```
