@@ -7,6 +7,8 @@ import pytest
 def test_input_calculations():
     assert calculate_total_time(["08:00-09:00"]) == timedelta(hours=1)
     assert calculate_total_time(["8:00-9:00"]) == timedelta(hours=1)
+    assert calculate_total_time(["8-9"]) == timedelta(hours=1)
+    assert calculate_total_time(["8-9:00"]) == timedelta(hours=1)
     assert calculate_total_time(["08:00-09:00", "10:00-11:30"]) == timedelta(hours=2, minutes=30)
 
     assert calculate_total_time(["30m"]) == timedelta(minutes=30)
@@ -28,3 +30,7 @@ def test_parse_exception():
         calculate_total_time(["invalid"])
         calculate_total_time(["1d"])
         calculate_total_time(["7:00-"])
+        calculate_total_time(["7-"])
+        calculate_total_time(["7:-4"])
+    with pytest.raises(ValueError):
+        calculate_total_time(["23:59-00:00"])

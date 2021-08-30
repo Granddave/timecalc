@@ -5,11 +5,13 @@ from datetime import datetime, timedelta
 import re
 
 
-_time_range_re = re.compile(r"^(\d{1,2}:\d{2})-(\d{1,2}:\d{2})$")
-_time_interval_re = re.compile(r"^(-?\d{1,2}[mh])$")
+_time_range_re = re.compile(
+    r"^((?:(?:[0-1]?\d)|(?:2[0-3]))(?::[0-5]\d)?)-((?:(?:[0-1]?\d)|(?:2[0-3]))(?::[0-5]\d)?)$"
+)
+_time_interval_re = re.compile(r"^(-?\d+[mh])$")
 
 
-class ParseError(RuntimeError):
+class ParseError(Exception):
     pass
 
 
@@ -27,9 +29,18 @@ def _match_time_interval(timeinterval_str: str):
     return None
 
 
-def _calculate_time_range(t1: str, t2: str):
-    format_string = "%H:%M"
-    return datetime.strptime(t2, format_string) - datetime.strptime(t1, format_string)
+def _convert_time_str(time_str: str):
+    return datetime.strptime(time_str, "%H:%M" if ":" in time_str else "%H")
+
+
+def _calculate_time_range(start_str, end_str):
+    start_time = _convert_time_str(start_str)
+    end_time = _convert_time_str(end_str)
+
+    if end_time < start_time:
+        raise ValueError(f"End time cannot be before start time: {start_str}-{end_str}")
+
+    return end_time - start_time
 
 
 def _calculate_time_interval(interval: str):
