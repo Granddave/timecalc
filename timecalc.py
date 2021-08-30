@@ -70,9 +70,10 @@ def calculate_total_time(args_list):
 
 
 def timedelta_to_str(delta: timedelta):
-    """Creates a string with '%H:%M' format from a time delta"""
-    parts = [int(x) for x in str(delta).split(":")]
-    return f"{parts[0]:02d}:{parts[1]}"
+    """Creates a string with '%Hh %Mm' format from a time delta"""
+    hours = delta.seconds // 3600
+    minutes = delta.seconds // 60 % 60
+    return (f"{hours}h " if hours > 0 else "") + f"{minutes}m"
 
 
 def _main():
@@ -91,7 +92,7 @@ def _main():
 
     try:
         total_time = calculate_total_time(parts)
-        print("Total time:", timedelta_to_str(total_time))
+        print(timedelta_to_str(total_time))
     except ParseError as e:
         print(f"Failed to parse '{e}'")
 

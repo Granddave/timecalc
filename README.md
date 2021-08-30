@@ -25,7 +25,7 @@ for 30 minutes. In the afternoon you work two hours:
 
 ```bash
 $ ./timecalc.py 7:00-12:00 -15m -30m 2h
-Total time: 06:15
+6h 15m
 ```
 
 ## Requirements
