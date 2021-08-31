@@ -76,10 +76,12 @@ def calculate_total_time(args_list: List[str]) -> timedelta:
 
 
 def timedelta_to_str(delta: timedelta) -> str:
-    """Creates a string with '%Hh %Mm' format from a time delta"""
+    """Constructs a Jira work log formatted string from a timedelta object"""
     hours = delta.seconds // 3600
     minutes = delta.seconds // 60 % 60
-    return (f"{hours}h " if hours > 0 else "") + f"{minutes}m"
+    output = f"{hours}h " if hours > 0 else ""
+    output += f"{minutes}m " if minutes > 0 else ""
+    return output.strip()
 
 
 def _main():
