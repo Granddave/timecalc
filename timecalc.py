@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime, timedelta
 import re
 import sys
+from typing import Optional, List
 
 
 _time_range_re = re.compile(
@@ -20,25 +21,25 @@ class NegativeTimeDelta(Exception):
     pass
 
 
-def _match_time_range(timerange_str: str):
+def _match_time_range(timerange_str: str) -> Optional[List[str]]:
     match = _time_range_re.findall(timerange_str)
     if match:
         return match[0]
     return None
 
 
-def _match_time_interval(timeinterval_str: str):
+def _match_time_interval(timeinterval_str: str) -> Optional[str]:
     match = _time_interval_re.findall(timeinterval_str)
     if match:
         return match[0]
     return None
 
 
-def _convert_time_str(time_str: str):
+def _convert_time_str(time_str: str) -> datetime:
     return datetime.strptime(time_str, "%H:%M" if ":" in time_str else "%H")
 
 
-def _calculate_time_range(start_str, end_str):
+def _calculate_time_range(start_str: str, end_str: str) -> timedelta:
     start_time = _convert_time_str(start_str)
     end_time = _convert_time_str(end_str)
 
@@ -48,7 +49,7 @@ def _calculate_time_range(start_str, end_str):
     return end_time - start_time
 
 
-def _calculate_time_interval(interval: str):
+def _calculate_time_interval(interval: str) -> timedelta:
     """Convert time interval string to timedelta object"""
     time_range_units = {
         "m": "minutes",
@@ -57,7 +58,7 @@ def _calculate_time_interval(interval: str):
     return timedelta(**{time_range_units[interval[-1]]: int(interval[:-1])})
 
 
-def calculate_total_time(args_list):
+def calculate_total_time(args_list: List[str]) -> timedelta:
     total_time = timedelta()
     for item in args_list:
         time_range = _match_time_range(item)
@@ -74,7 +75,7 @@ def calculate_total_time(args_list):
     return total_time
 
 
-def timedelta_to_str(delta: timedelta):
+def timedelta_to_str(delta: timedelta) -> str:
     """Creates a string with '%Hh %Mm' format from a time delta"""
     hours = delta.seconds // 3600
     minutes = delta.seconds // 60 % 60
