@@ -27,7 +27,10 @@ def test_total_time_formatting():
     assert timedelta_to_str(calculate_total_time(["1h"])) == "1h"
     assert timedelta_to_str(calculate_total_time(["1m"])) == "1m"
     assert timedelta_to_str(calculate_total_time(["1d"])) == "1d"
+    assert timedelta_to_str(calculate_total_time(["1w"])) == "1w"
     assert timedelta_to_str(calculate_total_time(["1d", "1m"])) == "1d 1m"
+    assert timedelta_to_str(calculate_total_time(["1w", "1d", "1m"])) == "1w 1d 1m"
+    assert timedelta_to_str(calculate_total_time(["1w", "1h"])) == "1w 1h"
 
 
 def test_parse_exception():
