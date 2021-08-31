@@ -10,7 +10,7 @@ from typing import Optional, List
 _time_range_re = re.compile(
     r"^((?:(?:[0-1]?\d)|(?:2[0-3]))(?::[0-5]\d)?)-((?:(?:[0-1]?\d)|(?:2[0-3]))(?::[0-5]\d)?)$"
 )
-_time_interval_re = re.compile(r"^(-?\d+[mh])$")
+_time_interval_re = re.compile(r"^(-?\d+[dmh])$")
 
 
 class ParseError(Exception):
@@ -54,6 +54,7 @@ def _calculate_time_interval(interval: str) -> timedelta:
     time_range_units = {
         "m": "minutes",
         "h": "hours",
+        "d": "days",
     }
     return timedelta(**{time_range_units[interval[-1]]: int(interval[:-1])})
 
@@ -79,7 +80,8 @@ def timedelta_to_str(delta: timedelta) -> str:
     """Constructs a Jira work log formatted string from a timedelta object"""
     hours = delta.seconds // 3600
     minutes = delta.seconds // 60 % 60
-    output = f"{hours}h " if hours > 0 else ""
+    output = f"{delta.days}d " if delta.days != 0 else ""
+    output += f"{hours}h " if hours > 0 else ""
     output += f"{minutes}m " if minutes > 0 else ""
     return output.strip()
 

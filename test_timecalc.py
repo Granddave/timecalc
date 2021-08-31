@@ -26,6 +26,8 @@ def test_total_time_formatting():
     assert timedelta_to_str(calculate_total_time(["20:00-23:04", "-25m", "52m"])) == "3h 31m"
     assert timedelta_to_str(calculate_total_time(["1h"])) == "1h"
     assert timedelta_to_str(calculate_total_time(["1m"])) == "1m"
+    assert timedelta_to_str(calculate_total_time(["1d"])) == "1d"
+    assert timedelta_to_str(calculate_total_time(["1d", "1m"])) == "1d 1m"
 
 
 def test_parse_exception():
