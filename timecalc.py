@@ -3,6 +3,7 @@
 import argparse
 from datetime import datetime, timedelta
 import re
+import sys
 
 
 _time_range_re = re.compile(
@@ -12,6 +13,10 @@ _time_interval_re = re.compile(r"^(-?\d+[mh])$")
 
 
 class ParseError(Exception):
+    pass
+
+
+class NegativeTimeDelta(Exception):
     pass
 
 
@@ -38,7 +43,7 @@ def _calculate_time_range(start_str, end_str):
     end_time = _convert_time_str(end_str)
 
     if end_time < start_time:
-        raise ValueError(f"End time cannot be before start time: {start_str}-{end_str}")
+        raise ValueError(f"End time cannot be before start time: '{start_str}-{end_str}'")
 
     return end_time - start_time
 
@@ -65,7 +70,7 @@ def calculate_total_time(args_list):
             total_time += _calculate_time_interval(time_interval)
             continue
 
-        raise ParseError(item)
+        raise ParseError(f"Failed to parse '{item}'")
     return total_time
 
 
@@ -93,8 +98,9 @@ def _main():
     try:
         total_time = calculate_total_time(parts)
         print(timedelta_to_str(total_time))
-    except ParseError as e:
-        print(f"Failed to parse '{e}'")
+    except Exception as e:
+        print(e)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
