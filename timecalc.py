@@ -91,19 +91,31 @@ def timedelta_to_str(delta: timedelta) -> str:
     return output.strip()
 
 
-def _main():
-    parser = argparse.ArgumentParser(
-        description="Calculates the total time of a given set of time ranges and intervals"
-    )
-    parser.add_argument(
-        "time_parts",
-        nargs="+",
-        help="Time ranges or intervals, e.g. 09:00-12:30, 1h or -30m",
+def _print_help():
+    print(
+        f"""usage: {sys.argv[0]} [-h] time_parts [time_parts ...]
+
+Calculates the total time of a given set of time ranges and intervals
+
+positional arguments:
+  time_parts  Time ranges or intervals, e.g. 09:00-12:30, 1h or -30m
+
+optional arguments:
+  -h, --help  show this help message and exit"""
     )
 
-    # Need to parse the parts like this to be able to support subtracting intervals, e.g. -15m
-    args, unknown = parser.parse_known_args()
-    parts = args.time_parts + unknown
+
+def _main():
+    args = sys.argv
+    if len(args) == 1:
+        _print_help()
+        sys.exit(1)
+
+    if any(x in ["-h", "--help"] for x in args):
+        _print_help()
+        sys.exit(0)
+
+    parts = args[1:]
 
     try:
         total_time = calculate_total_time(parts)
