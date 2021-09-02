@@ -1,7 +1,7 @@
 
 [![Python package](https://github.com/Granddave/timecalc/actions/workflows/ci.yml/badge.svg)](https://github.com/Granddave/timecalc/actions/workflows/ci.yml)
 
-# Timecalc 
+# Timecalc
 
 Simple CLI tool that calculates the total time spent on a project given time ranges and intervals.
 
