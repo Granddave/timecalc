@@ -33,6 +33,10 @@ def test_total_time_formatting():
     assert timedelta_to_str(calculate_total_time(["1w", "1h"])) == "1w 1h"
 
 
+def test_zero_result():
+    assert timedelta_to_str(calculate_total_time(["1h", "-1h"])) == "0h"
+
+
 def test_parse_exception():
     with pytest.raises(ParseError):
         calculate_total_time(["invalid"])

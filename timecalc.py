@@ -88,7 +88,8 @@ def timedelta_to_str(delta: timedelta) -> str:
     output += f"{days}d " if days != 0 else ""
     output += f"{hours}h " if hours > 0 else ""
     output += f"{minutes}m " if minutes > 0 else ""
-    return output.strip()
+    output = output.strip()
+    return output if output != "" else "0h"
 
 
 def _print_help():
