@@ -1,5 +1,5 @@
 
-[![Python package](https://github.com/Granddave/timecalc/actions/workflows/ci.yml/badge.svg)](https://github.com/Granddave/timecalc/actions/workflows/ci.yml)
+[![Linting, formatting and tests](https://github.com/Granddave/timecalc/actions/workflows/ci.yml/badge.svg)](https://github.com/Granddave/timecalc/actions/workflows/ci.yml)
 
 # Timecalc
 
