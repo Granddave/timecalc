@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import argparse
 from datetime import datetime, timedelta
 import re
 import sys
@@ -14,6 +13,10 @@ _time_interval_re = re.compile(r"^(-?\d+[wdmh])$")
 
 
 class ParseError(Exception):
+    pass
+
+
+class TimeRangeError(Exception):
     pass
 
 
@@ -44,7 +47,7 @@ def _calculate_time_range(start_str: str, end_str: str) -> timedelta:
     end_time = _convert_time_str(end_str)
 
     if end_time < start_time:
-        raise ValueError(f"End time cannot be before start time: '{start_str}-{end_str}'")
+        raise TimeRangeError(f"End time cannot be before start time: '{start_str}-{end_str}'")
 
     return end_time - start_time
 

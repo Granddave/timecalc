@@ -1,48 +1,96 @@
-from timecalc import timedelta_to_str, calculate_total_time, ParseError
+from timecalc import timedelta_to_str, calculate_total_time, ParseError, TimeRangeError
 from datetime import timedelta
 
 import pytest
 
 
-def test_input_calculations():
-    assert calculate_total_time(["08:00-09:00"]) == timedelta(hours=1)
-    assert calculate_total_time(["8:00-9:00"]) == timedelta(hours=1)
-    assert calculate_total_time(["8-9"]) == timedelta(hours=1)
-    assert calculate_total_time(["8-9:00"]) == timedelta(hours=1)
-    assert calculate_total_time(["08:00-09:00", "10:00-11:30"]) == timedelta(hours=2, minutes=30)
-
-    assert calculate_total_time(["30m"]) == timedelta(minutes=30)
-    assert calculate_total_time(["90m"]) == timedelta(hours=1, minutes=30)
-    assert calculate_total_time(["1h", "90m"]) == timedelta(hours=2, minutes=30)
-    assert calculate_total_time(["1h", "90m", "-30m"]) == timedelta(hours=2)
-    assert calculate_total_time(["2h", "-30m", "-1h"]) == timedelta(minutes=30)
-
-    assert calculate_total_time(["08:00-09:00", "-15m"]) == timedelta(minutes=45)
-
-
-def test_total_time_formatting():
-    assert timedelta_to_str(calculate_total_time(["08:00-09:00", "10:00-11:30"])) == "2h 30m"
-    assert timedelta_to_str(calculate_total_time(["08:00-09:00", "-15m"])) == "45m"
-    assert timedelta_to_str(calculate_total_time(["20:00-23:04", "-25m", "52m"])) == "3h 31m"
-    assert timedelta_to_str(calculate_total_time(["1h"])) == "1h"
-    assert timedelta_to_str(calculate_total_time(["1m"])) == "1m"
-    assert timedelta_to_str(calculate_total_time(["1d"])) == "1d"
-    assert timedelta_to_str(calculate_total_time(["1w"])) == "1w"
-    assert timedelta_to_str(calculate_total_time(["1d", "1m"])) == "1d 1m"
-    assert timedelta_to_str(calculate_total_time(["1w", "1d", "1m"])) == "1w 1d 1m"
-    assert timedelta_to_str(calculate_total_time(["1w", "1h"])) == "1w 1h"
+@pytest.mark.parametrize(
+    "args_list,expected_timedelta",
+    [
+        (["08:00-09:00"], timedelta(hours=1)),
+        (["8:00-9:00"], timedelta(hours=1)),
+        (["8-9"], timedelta(hours=1)),
+        (["8-9:00"], timedelta(hours=1)),
+        (["8:00-9"], timedelta(hours=1)),
+        (["08:00-09:00", "10:00-11:31"], timedelta(hours=2, minutes=31)),
+    ],
+)
+def test_parsing_time_range(args_list, expected_timedelta):
+    assert calculate_total_time(args_list) == expected_timedelta
 
 
-def test_zero_result():
-    assert timedelta_to_str(calculate_total_time(["1h", "-1h"])) == "0h"
+@pytest.mark.parametrize(
+    "args_list,expected_timedelta",
+    [
+        (["30m"], timedelta(minutes=30)),
+        (["90m"], timedelta(hours=1, minutes=30)),
+        (["1h", "90m"], timedelta(hours=2, minutes=30)),
+        (["1h", "90m", "-30m"], timedelta(hours=2)),
+        (["1d", "30m", "-1h"], timedelta(hours=23, minutes=30)),
+        (["1w", "1d", "5h"], timedelta(weeks=1, days=1, hours=5)),
+    ],
+)
+def test_parsing_time_intervals(args_list, expected_timedelta):
+    assert calculate_total_time(args_list) == expected_timedelta
 
 
-def test_parse_exception():
-    with pytest.raises(ParseError):
-        calculate_total_time(["invalid"])
-        calculate_total_time(["1d"])
-        calculate_total_time(["7:00-"])
-        calculate_total_time(["7-"])
-        calculate_total_time(["7:-4"])
-    with pytest.raises(ValueError):
-        calculate_total_time(["23:59-00:00"])
+@pytest.mark.parametrize(
+    "args_list,expected_timedelta",
+    [
+        (["30m", "12-15"], timedelta(hours=3, minutes=30)),
+        (["12-15", "30m"], timedelta(hours=3, minutes=30)),
+        (["12-15", "-30m"], timedelta(hours=2, minutes=30)),
+    ],
+)
+def test_parsing_mixed_input(args_list, expected_timedelta):
+    assert calculate_total_time(args_list) == expected_timedelta
+
+
+@pytest.mark.parametrize(
+    "args_list,expected_output",
+    [
+        (["8-9", "10:00-11:30"], "2h 30m"),
+        (["8-9", "-15m"], "45m"),
+        (["20:00-23:04", "-25m", "52m"], "3h 31m"),
+        (["1h"], "1h"),
+        (["1m"], "1m"),
+        (["1d"], "1d"),
+        (["1w"], "1w"),
+        (["1d", "1m"], "1d 1m"),
+        (["1w", "1d", "1m"], "1w 1d 1m"),
+        (["1w", "1m"], "1w 1m"),
+        (["1w", "1h"], "1w 1h"),
+        (["1w", "1d", "1h", "1m"], "1w 1d 1h 1m"),
+    ],
+)
+def test_total_time_formatting(args_list, expected_output):
+    assert timedelta_to_str(calculate_total_time(args_list)) == expected_output
+
+
+@pytest.mark.parametrize(
+    "args_list,expected_output",
+    [
+        (["1h", "-1h"], "0h"),
+        (["1d", "-24h"], "0h"),
+    ],
+)
+def test_zero_result(args_list, expected_output):
+    assert timedelta_to_str(calculate_total_time(args_list)) == expected_output
+
+
+@pytest.mark.parametrize(
+    "args_list,expected_exception",
+    [
+        ([""], ParseError),
+        (["invalid"], ParseError),
+        (["1x"], ParseError),
+        (["7:00-"], ParseError),
+        (["7-"], ParseError),
+        (["7:-4"], ParseError),
+        (["24:00-9:00"], ParseError),
+        (["23:59-00:00"], TimeRangeError),
+    ],
+)
+def test_parse_exception(args_list, expected_exception):
+    with pytest.raises(expected_exception):
+        calculate_total_time(args_list)
