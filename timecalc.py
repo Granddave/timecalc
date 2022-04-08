@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+from ast import Param
+from nis import cat
+from pprint import pprint
 from datetime import datetime, timedelta
 import re
 import sys
@@ -47,7 +50,9 @@ def _calculate_time_range(start_str: str, end_str: str) -> timedelta:
     end_time = _convert_time_str(end_str)
 
     if end_time < start_time:
-        raise TimeRangeError(f"End time cannot be before start time: '{start_str}-{end_str}'")
+        raise TimeRangeError(
+            f"End time cannot be before start time: '{start_str}-{end_str}'"
+        )
 
     return end_time - start_time
 
@@ -95,6 +100,30 @@ def timedelta_to_str(delta: timedelta) -> str:
     return output if output != "" else "0h"
 
 
+
+def filter_time_reportings(lines):
+    return [l.rstrip() for l in lines if "[" in l]
+
+
+def parse_and_calculate_file(filepath: str):
+    lines = None
+    with open(filepath, "r") as file:
+        lines = file.readlines()
+
+    parts_re = re.compile(r".*\]\s.*?:\s(.*)")
+    for line in lines:
+        line = line.rstrip()
+        match = parts_re.findall(line)
+        if match:
+            res = None
+            try:
+                res = calculate_total_time(match[0].split(" "))
+            except ParseError:
+                print(line)
+                continue
+            print(f"{line} = {timedelta_to_str(res)}")
+
+
 def _print_help():
     print(
         f"""usage: {sys.argv[0]} [-h] time_parts [time_parts ...]
@@ -115,12 +144,14 @@ def _main():
         _print_help()
         sys.exit(1)
 
-    if any(x in ["-h", "--help"] for x in args):
+    if any(arg in ["-h", "--help"] for arg in args):
         _print_help()
+        sys.exit(0)
+    elif args[1] in ["-f", "--file"] and len(args) == 3:
+        parse_and_calculate_file(args[2])
         sys.exit(0)
 
     parts = args[1:]
-
     try:
         total_time = calculate_total_time(parts)
         print(timedelta_to_str(total_time))
